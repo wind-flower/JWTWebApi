@@ -28,7 +28,7 @@ namespace JWTWebApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Role1")]
+        [Authorize(Roles = "Admnistrador")]
         //[Authorize()]
         public IActionResult Get()
         {

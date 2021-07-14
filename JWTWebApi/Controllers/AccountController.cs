@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -33,7 +34,7 @@ namespace JWTWebApi.Controllers
                 return BadRequest(response);
             }
 
-            var roles = new string[] { "Role1" };
+            var roles = new string[] { "Admnistrador" };
             var token = GenerateJwtToken(request.Username, roles.ToList());
             return Ok(new LoginResponse()
             {
@@ -59,7 +60,7 @@ namespace JWTWebApi.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"]));
-
+        
             var token = new JwtSecurityToken(
                 _configuration["JwtIssuer"],
                 _configuration["JwtIssuer"],
@@ -67,8 +68,12 @@ namespace JWTWebApi.Controllers
                 expires: expires,
                 signingCredentials: creds
             );
+            var auth = new JwtSecurityTokenHandler().WriteToken(token);
+            HttpContext.Response.Cookies.Append("AutorizacionToken", auth);
+           
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+
+            return auth;
         }
 
 

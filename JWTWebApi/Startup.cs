@@ -32,14 +32,14 @@ namespace JWTWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-
+      
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            services
-    .AddAuthentication(options =>
+            services .AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+      
     })
     .AddJwtBearer(cfg =>
     {
@@ -50,7 +50,16 @@ namespace JWTWebApi
             ValidIssuer = Configuration["JwtIssuer"],
             ValidAudience = Configuration["JwtIssuer"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
-            ClockSkew = TimeSpan.Zero // remove delay of token when expire
+            ClockSkew = TimeSpan.Zero 
+        };
+        cfg.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+           {
+               context.Token = context.Request.Cookies["AutorizacionToken"];
+               Console.WriteLine(context.Token);
+               return Task.CompletedTask;
+           },
         };
 
     });
